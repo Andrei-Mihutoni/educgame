@@ -1,4 +1,15 @@
 #svgWrapper {
   width: 1920px;
   height: 1080px;
+  overflow: hidden;
 }
+
+/* 	
+ 	   <filter id="myFilter">
+    <feComponentTransfer>
+      <feFuncR type="linear" slope=".2" />
+      <feFuncG type="linear" slope=".2" />
+      <feFuncB type="linear" slope=".2" />
+    </feComponentTransfer>
+  </filter>
+   */

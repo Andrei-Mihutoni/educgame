@@ -1,4 +1,12 @@
-window.addEventListener("DOMContentLoaded", start);
+window.addEventListener("DOMContentLoaded", initGame);
+
+const ADULT_MOVE_TICK_RATE = 200; // move every nr of ms
+const TIMER_UPDATE_TICK_RATE = 100; // update every nr of ms
+const GAMETIME = 7200; // in ms
+
+let rooms = [];
+let points = 0;
+let lastEnteredRoom = 0;
 
 const Room = {
   name: "",
@@ -7,8 +15,6 @@ const Room = {
   isLit: false,
   isSnif: false,
 };
-let rooms = [];
-let points;
 
 const adult = {
   room: 0,
@@ -16,13 +22,30 @@ const adult = {
 };
 
 const timer = {
-  timeout: 3600,
+  timeout: GAMETIME,
+  node: document.querySelector("#timerContent"),
+  running: false,
 };
 
-async function start() {
+async function initGame() {
   let response = await fetch("./Rooms-01.svg");
   let mySvgData = await response.text();
   document.querySelector("#svgWrapper").innerHTML = mySvgData;
+  
+  document.querySelector("#startBtn").addEventListener("click", startGame);
+  addRooms();
+  initSvg();
+  initAdult();
+  gameLoop();
+}
+
+function startGame(){
+  document.querySelector("#startBtn").classList.add("hidden");
+  document.querySelector("#darkenScreen").classList.add("hidden");
+  timer.running =true;
+}
+
+function addRooms(){
   for (let i = 0; i <= 4; i++) {
     let room = Object.create(Room);
     room.name = `#room${i + 1}`;
@@ -32,56 +55,91 @@ async function start() {
     room.isAdultIn = false;
     rooms.push(room);
   }
-  initSvg();
-  initAdult();
-  gameLoop();
 }
+
 
 function initAdult() {
   adult.room = 0;
   adult.node = document.querySelector("#adult");
+  adult.node.setAttribute("transform", "translate(-500,-500)");
 }
 
 function initSvg() {
   for (let i = 0; i < rooms.length; i++) {
     rooms[i].node.setAttribute("filter", "url(#myFilter)");
-    console.log(rooms[i].node);
     rooms[i].node.addEventListener("click", function () {
       if (!rooms[i].isAdultIn) {
         if (rooms[i].isLit) {
           rooms[i].node.setAttribute("filter", "url(#myFilter)");
           rooms[i].isLit = false;
-        } else {
-          rooms[i].node.removeAttribute("filter");
-          rooms[i].isLit = true;
-        }
+          points++;
+        } 
+        // else {
+        //   rooms[i].node.removeAttribute("filter");
+        //   rooms[i].isLit = true;
+        // }
       }
     });
   }
 }
 
 function gameLoop() {
-  if (timer.timeout > 0) {
+  //PROCESS
+  if (timer.timeout > 0 && timer.running) {
     timer.timeout--;
-    if (timer.timeout % 100 == 0) {
+    if (timer.timeout % ADULT_MOVE_TICK_RATE == 0) {
       console.log("tick");
-      moveAdult(Math.floor(Math.random() * 5));
+      let nowEnteredRoom = Math.floor(Math.random() * 5)
+      console.log(nowEnteredRoom, lastEnteredRoom);      
+      while(nowEnteredRoom == lastEnteredRoom) {
+        nowEnteredRoom = Math.floor(Math.random() * 5);
+        console.log(nowEnteredRoom);
+      }
+      moveAdult(nowEnteredRoom);
+      lastEnteredRoom = nowEnteredRoom
     }
   }
 
+  if(timer.timeout == 0){
+    endGame();
+    timer.running = false;
+  }
+
+  //VIEW
+  if (timer.timeout > 0 && timer.running) {
+    if(timer.timeout % TIMER_UPDATE_TICK_RATE == 0){
+  updateRoomView();
+  updateTimer();
+    }
+  }
+
+  //LOOP
+  requestAnimationFrame(gameLoop);
+}
+
+function updateRoomView(){
   for (let i = 0; i < rooms.length; i++) {
     if (!rooms[i].isLit) rooms[i].node.setAttribute("filter", "url(#myFilter)");
     else rooms[i].node.removeAttribute("filter");
   }
+}
 
-  requestAnimationFrame(gameLoop);
+function updateTimer(){
+  // 72 = initial timer timeout / 100;
+  timer.node.style.width = timer.timeout / 72 + "%";
+}
+
+function endGame(){
+  document.querySelector("#darkenScreen").classList.remove("hidden");
+  document.querySelector("#endScreen").classList.remove("hidden");
+  document.querySelector("#endScreen p span").textContent = points;
 }
 
 function moveAdult(roomNr) {
   rooms.forEach((room) => (room.isAdultIn = false));
   adult.room = roomNr;
-  // console.log(rooms);
-  // console.log(adult.room);
+
+  //FIXME make procedural
   if (adult.room == 0) {
     adult.node.setAttribute("transform", "translate(0,0)");
   } else if (adult.room == 1) {

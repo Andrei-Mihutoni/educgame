@@ -1,0 +1,20 @@
+/* #hands {
+  width: 200px;
+  height: auto;
+} */
+
+
+.fall{
+    animation: fall 1s linear infinite;
+}
+
+
+  
+  @keyframes fall {
+    0% {
+      transform: translateY();
+    }
+    100% {
+      transform: translate(1100px, 1000px)
+    }
+  }

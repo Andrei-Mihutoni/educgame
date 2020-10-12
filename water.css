@@ -16,6 +16,6 @@
     transform: translateY();
   }
   100% {
-    transform: translate(1100px, 1000px);
+    transform: translate(1100px, 950px);
   }
 } ;

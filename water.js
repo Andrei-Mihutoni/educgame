@@ -105,7 +105,7 @@ function gameLoop() {
             dropX > bowlRectX &&
             dropY > bowlRectY) {
             // collision detected!
-            console.log("heeeeyyyy")
+            console.log("Collision!")
         }
         // console.log("dropX", dropX, "dropY", dropY, "bowlX", bowlRectX, "bowlY", bowlRectY)
         // console.log("bowlRectW", bowlWidth, "bowlRectH", bowlHeight, "bowlRectW+X", bowlWidth + bowlRectX)

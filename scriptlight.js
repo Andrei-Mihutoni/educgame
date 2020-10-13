@@ -8,10 +8,9 @@ let rooms = [];
 let points = 0;
 let lastEnteredRoom = 0;
 
-// let soundLightOff = document.querySelector("#light_off");
-// let soundLightOn = document.querySelector("#light_on");
 let soundLightOff = new Audio("./light_off.mp3");
 let soundLightOn = new Audio("./light_on.mp3");
+let soundWrong = new Audio("./wrong.mp3");
 
 const Room = {
   name: "",
@@ -81,6 +80,9 @@ function initSvg() {
           points++;
           soundLightOff.play();
         }
+      } else {
+        soundWrong.currentTime = 0;
+        soundWrong.play();
       }
     });
   }

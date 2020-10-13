@@ -69,12 +69,13 @@ function initAdult() {
 
 function initSvg() {
   for (let i = 0; i < rooms.length; i++) {
-    rooms[i].node.setAttribute("filter", "url(#myFilter)");
+    rooms[i].node.setAttribute("filter", "url(#darkenRoom)");
+    rooms[i].node.classList.add("hovered");
     rooms[i].node.querySelector(".light-on").classList.add("hidden");
     rooms[i].node.addEventListener("click", function () {
       if (!rooms[i].isAdultIn) {
         if (rooms[i].isLit) {
-          rooms[i].node.setAttribute("filter", "url(#myFilter)");
+          rooms[i].node.setAttribute("filter", "url(#darkenRoom)");
           rooms[i].isLit = false;
           rooms[i].node.querySelector(".light-on").classList.add("hidden");
           points++;
@@ -124,13 +125,12 @@ function gameLoop() {
 
 function updateRoomView() {
   for (let i = 0; i < rooms.length; i++) {
-    if (!rooms[i].isLit) rooms[i].node.setAttribute("filter", "url(#myFilter)");
+    if (!rooms[i].isLit) rooms[i].node.setAttribute("filter", "url(#darkenRoom)");
     else rooms[i].node.removeAttribute("filter");
   }
 }
 
 function updateTimer() {
-  // 72 = initial timer timeout / 100;
   timer.node.style.width = timer.timeout / (GAMETIME / 100) + "%";
 }
 
@@ -144,7 +144,6 @@ function moveAdult(roomNr) {
   rooms.forEach((room) => (room.isAdultIn = false));
   adult.room = roomNr;
 
-  //FIXME make procedural
   if (adult.room == 0) {
     adult.node.setAttribute("transform", "translate(0,0)");
   } else if (adult.room == 1) {

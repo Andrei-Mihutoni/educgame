@@ -65,7 +65,7 @@ body {
 }
 
 /* 	
- 	   <filter id="myFilter">
+	 	 	   <filter id="myFilter">
     <feComponentTransfer>
       <feFuncR type="linear" slope=".2" />
       <feFuncG type="linear" slope=".2" />

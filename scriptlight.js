@@ -2,11 +2,16 @@ window.addEventListener("DOMContentLoaded", initGame);
 
 const ADULT_MOVE_TICK_RATE = 200; // move every nr of ms
 const TIMER_UPDATE_TICK_RATE = 100; // update every nr of ms
-const GAMETIME = 7200; // in ms
+const GAMETIME = 3600; // in ms
 
 let rooms = [];
 let points = 0;
 let lastEnteredRoom = 0;
+
+// let soundLightOff = document.querySelector("#light_off");
+// let soundLightOn = document.querySelector("#light_on");
+let soundLightOff = new Audio("./light_off.mp3");
+let soundLightOn = new Audio("./light_on.mp3");
 
 const Room = {
   name: "",
@@ -31,7 +36,7 @@ async function initGame() {
   let response = await fetch("./Rooms-01.svg");
   let mySvgData = await response.text();
   document.querySelector("#svgWrapper").innerHTML = mySvgData;
-  
+
   document.querySelector("#startBtn").addEventListener("click", startGame);
   addRooms();
   initSvg();
@@ -39,13 +44,13 @@ async function initGame() {
   gameLoop();
 }
 
-function startGame(){
+function startGame() {
   document.querySelector("#startBtn").classList.add("hidden");
   document.querySelector("#darkenScreen").classList.add("hidden");
-  timer.running =true;
+  timer.running = true;
 }
 
-function addRooms(){
+function addRooms() {
   for (let i = 0; i <= 4; i++) {
     let room = Object.create(Room);
     room.name = `#room${i + 1}`;
@@ -57,7 +62,6 @@ function addRooms(){
   }
 }
 
-
 function initAdult() {
   adult.room = 0;
   adult.node = document.querySelector("#adult");
@@ -67,17 +71,16 @@ function initAdult() {
 function initSvg() {
   for (let i = 0; i < rooms.length; i++) {
     rooms[i].node.setAttribute("filter", "url(#myFilter)");
+    rooms[i].node.querySelector(".light-on").classList.add("hidden");
     rooms[i].node.addEventListener("click", function () {
       if (!rooms[i].isAdultIn) {
         if (rooms[i].isLit) {
           rooms[i].node.setAttribute("filter", "url(#myFilter)");
           rooms[i].isLit = false;
+          rooms[i].node.querySelector(".light-on").classList.add("hidden");
           points++;
-        } 
-        // else {
-        //   rooms[i].node.removeAttribute("filter");
-        //   rooms[i].isLit = true;
-        // }
+          soundLightOff.play();
+        }
       }
     });
   }
@@ -89,27 +92,27 @@ function gameLoop() {
     timer.timeout--;
     if (timer.timeout % ADULT_MOVE_TICK_RATE == 0) {
       console.log("tick");
-      let nowEnteredRoom = Math.floor(Math.random() * 5)
-      console.log(nowEnteredRoom, lastEnteredRoom);      
-      while(nowEnteredRoom == lastEnteredRoom) {
+      let nowEnteredRoom = Math.floor(Math.random() * 5);
+      console.log(nowEnteredRoom, lastEnteredRoom);
+      while (nowEnteredRoom == lastEnteredRoom) {
         nowEnteredRoom = Math.floor(Math.random() * 5);
         console.log(nowEnteredRoom);
       }
       moveAdult(nowEnteredRoom);
-      lastEnteredRoom = nowEnteredRoom
+      lastEnteredRoom = nowEnteredRoom;
     }
   }
 
-  if(timer.timeout == 0){
+  if (timer.timeout == 0) {
     endGame();
     timer.running = false;
   }
 
   //VIEW
   if (timer.timeout > 0 && timer.running) {
-    if(timer.timeout % TIMER_UPDATE_TICK_RATE == 0){
-  updateRoomView();
-  updateTimer();
+    if (timer.timeout % TIMER_UPDATE_TICK_RATE == 0) {
+      updateRoomView();
+      updateTimer();
     }
   }
 
@@ -117,19 +120,19 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-function updateRoomView(){
+function updateRoomView() {
   for (let i = 0; i < rooms.length; i++) {
     if (!rooms[i].isLit) rooms[i].node.setAttribute("filter", "url(#myFilter)");
     else rooms[i].node.removeAttribute("filter");
   }
 }
 
-function updateTimer(){
+function updateTimer() {
   // 72 = initial timer timeout / 100;
-  timer.node.style.width = timer.timeout / 72 + "%";
+  timer.node.style.width = timer.timeout / (GAMETIME / 100) + "%";
 }
 
-function endGame(){
+function endGame() {
   document.querySelector("#darkenScreen").classList.remove("hidden");
   document.querySelector("#endScreen").classList.remove("hidden");
   document.querySelector("#endScreen p span").textContent = points;
@@ -151,6 +154,9 @@ function moveAdult(roomNr) {
   } else if (adult.room == 4) {
     adult.node.setAttribute("transform", "translate(1000,350)");
   }
+
+  soundLightOn.play();
+  rooms[roomNr].node.querySelector(".light-on").classList.remove("hidden");
   rooms[roomNr].isAdultIn = true;
   rooms[roomNr].isLit = true;
 }

@@ -25,8 +25,16 @@ body {
     flex-flow: row;
     align-items: center;
     color: white;
+    font-size: 1.5em;
 }
-img {
+
+img.icons {
     height: 23vh;
-    width: 10vw;
+    width: 12vw;
+}
+
+img {
+    width: 45vw;
+    align-self: center;
+    justify-self: center;
 }

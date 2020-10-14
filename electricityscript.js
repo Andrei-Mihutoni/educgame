@@ -3,14 +3,15 @@ window.addEventListener("DOMContentLoaded", initGame);
 const GAMETIME = 3600; // in ms
 const TIMER_UPDATE_TICK_RATE = 100;
 
+const NR_OF_PLATES = 10;
 const INITIAL_PLATE_X = 950;
 const INITIAL_PLATE_Y = 530;
 
-const DISHWASHER_EMPTY_PLATES = 0;
-const DISHWASHER_FULL_PLATES = 5;
-const DISHWASHER_CLOSED_PLATES = 10;
+const DISHWASHER_EMPTY_PLATES = 5;
+const DISHWASHER_FULL_PLATES = 8;
 
 let pt;
+let plates = [];
 
 const Plate = {
   node: "",
@@ -22,6 +23,12 @@ const dishwasher = {
   nodeFull: "",
   nodeEmpty: "",
   nodeClosed: "",
+  collisionNode: "",
+  plates: 0,
+  closed: false,
+};
+
+const sink = {
   collisionNode: "",
   plates: 0,
 };
@@ -37,6 +44,7 @@ async function initGame() {
   let mySvgData = await response.text();
   document.querySelector("#svgWrapper").innerHTML = mySvgData;
 
+  pt = document.querySelector("#svgWrapper svg").createSVGPoint();
   startGame();
   initDishwasher();
   addPlates();
@@ -56,15 +64,27 @@ function initDishwasher() {
   dishwasher.nodeFull.classList.add("hidden");
   dishwasher.nodeEmpty.classList.add("hidden");
   dishwasher.nodeClosed.classList.add("hidden");
+
+  sink.collisionNode = document.querySelector("#sinkCollision");
 }
 
 function addPlates() {
-  plate = Object.create(Plate);
-  plate.node = document.querySelector("#plate");
-  plate.collisionNode = document.querySelector("#plate rect");
-  plate.grabbed = false;
-  pt = document.querySelector("#svgWrapper svg").createSVGPoint();
-  plate.collisionNode.addEventListener("mousedown", grabPlate);
+  for (let i = 0; i < NR_OF_PLATES; i++) {
+    const newPlate = document.querySelector("#plate").cloneNode(true);
+    newPlate.id = `plate${i}`;
+    document.querySelector("#plates").appendChild(newPlate);
+
+    plate = Object.create(Plate);
+    plate.node = document.querySelector(`#plate${i}`);
+    plate.node.setAttribute("transform", `translate(0,${-i * 15})`);
+
+    plate.collisionNode = document.querySelector(`#plate${i} rect`);
+    plate.collisionNode.addEventListener("mousedown", grabPlate);
+    plate.grabbed = false;
+
+    plates.push(plate);
+  }
+  document.querySelector("#plate").parentElement.removeChild(document.querySelector("#plate"));
 }
 
 function cursorPoint(evt) {
@@ -88,34 +108,43 @@ function checkCollision(rect1, rect2) {
   let plateCollisionY =
     rect1.parentElement.computedStyleMap().get("transform")[0].y.value + INITIAL_PLATE_Y - plateHeight / 2;
 
-  let dishwasherCollisionX = rect2.x.baseVal.value;
-  let dishwasherCollisionY = rect2.y.baseVal.value;
-  let dishwasherWidth = parseInt(rect2.getAttribute("width"));
-  let dishwasherHeight = parseInt(rect2.getAttribute("height"));
+  let rect2CollisionX = rect2.x.baseVal.value;
+  let rect2CollisionY = rect2.y.baseVal.value;
+  let rect2Width = parseInt(rect2.getAttribute("width"));
+  let rect2Height = parseInt(rect2.getAttribute("height"));
 
   if (
-    plateCollisionX < dishwasherCollisionX + dishwasherWidth &&
-    plateCollisionX + plateWidth > dishwasherCollisionX &&
-    plateCollisionY < dishwasherCollisionY + dishwasherHeight &&
-    plateCollisionY + plateHeight > dishwasherCollisionY
+    plateCollisionX < rect2CollisionX + rect2Width &&
+    plateCollisionX + plateWidth > rect2CollisionX &&
+    plateCollisionY < rect2CollisionY + rect2Height &&
+    plateCollisionY + plateHeight > rect2CollisionY
   ) {
-    console.log(plateCollisionX, plateCollisionY, "dx:", dishwasherCollisionX, "dy:", dishwasherCollisionY);
-    console.log(plateWidth, plateHeight, dishwasherWidth, dishwasherHeight);
+    // console.log(plateCollisionX, plateCollisionY, "dx:", dishwasherCollisionX, "dy:", dishwasherCollisionY);
+    // console.log(plateWidth, plateHeight, dishwasherWidth, dishwasherHeight);
     console.log("collision");
+    if (!dishwasher.closed) addPlateToDishwasher(rect1.parentElement);
+    else addPlateToSink(rect1.parentElement);
   }
 }
 
-function movePlate(event) {
-  document
-    .querySelector("#plate")
-    .setAttribute(
-      "transform",
-      `translate(${parseInt(cursorPoint(event).x) - INITIAL_PLATE_X},${
-        parseInt(cursorPoint(event).y) - INITIAL_PLATE_Y
-      })`
-    );
+function addPlateToDishwasher(plate) {
+  dishwasher.plates++;
+  plate.parentElement.removeChild(plate);
+}
 
-  checkCollision(event.target, dishwasher.collisionNode);
+function addPlateToSink(plate) {
+  sink.plates++;
+  plate.parentElement.removeChild(plate);
+}
+
+function movePlate(event) {
+  event.target.parentElement.setAttribute(
+    "transform",
+    `translate(${parseInt(cursorPoint(event).x) - INITIAL_PLATE_X},${parseInt(cursorPoint(event).y) - INITIAL_PLATE_Y})`
+  );
+
+  if (!dishwasher.closed) checkCollision(event.target, dishwasher.collisionNode);
+  else checkCollision(event.target, sink.collisionNode);
 }
 
 function gameLoop() {
@@ -160,6 +189,7 @@ function updateDishwasherView() {
     dishwasher.nodeFull.classList.add("hidden");
     dishwasher.nodeEmpty.classList.add("hidden");
     dishwasher.nodeClosed.classList.remove("hidden");
+    dishwasher.closed = true;
     // console.log(dishwasher.plates, "closed");
   }
 }

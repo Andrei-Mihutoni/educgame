@@ -2,6 +2,64 @@ body {
   margin: 0;
 }
 
+.hovered:hover {
+  cursor: pointer;
+  transform: scale(1.01);
+  transform-origin: center;
+}
+
 .hidden {
   display: none;
+}
+
+#startBtn {
+  width: 300px;
+  height: 100px;
+  position: absolute;
+  left: 40%;
+  top: 50%;
+  z-index: 2;
+}
+
+#darkenScreen {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 30%;
+  background-color: black;
+}
+
+#timerContent {
+  background-color: green;
+  width: 100%;
+  height: 100%;
+}
+
+#timerBox {
+  border: 1px solid black;
+  width: 500px;
+  height: 25px;
+  position: absolute;
+  top: 10%;
+  left: 5%;
+}
+
+#endScreen {
+  width: 400px;
+  height: 200px;
+  position: absolute;
+  background-color: lightgray;
+  border-radius: 10px;
+  left: 35%;
+  top: 50%;
+  z-index: 2;
+  padding: 10px;
+}
+
+#endScreen p {
+  text-align: center;
+}
+
+#endScreen p span {
+  font-weight: bold;
 }

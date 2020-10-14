@@ -1,18 +1,20 @@
 window.addEventListener("DOMContentLoaded", initGame);
 
 const GAMETIME = 3600; // in ms
-const TIMER_UPDATE_TICK_RATE = 100;
+const TIMER_UPDATE_TICK_RATE = 100; // in ms
 
 const NR_OF_PLATES = 10;
-const INITIAL_PLATE_X = 950;
+const INITIAL_PLATE_X = 950; // initial plate pos doesn't start at (0,0)
 const INITIAL_PLATE_Y = 530;
 
+//for changing dishwasher image
 const DISHWASHER_EMPTY_PLATES = 5;
 const DISHWASHER_FULL_PLATES = 8;
 
-let pt;
-let plates = [];
+let svgPoint; //for translating page mouse coords in svg coords
+let points = 0;
 
+let plates = [];
 const Plate = {
   node: "",
   collisionNode: "",
@@ -44,14 +46,16 @@ async function initGame() {
   let mySvgData = await response.text();
   document.querySelector("#svgWrapper").innerHTML = mySvgData;
 
-  pt = document.querySelector("#svgWrapper svg").createSVGPoint();
-  startGame();
+  svgPoint = document.querySelector("#svgWrapper svg").createSVGPoint();
+  document.querySelector("#startBtn").addEventListener("click", startGame);
   initDishwasher();
   addPlates();
   gameLoop();
 }
 
 function startGame() {
+  document.querySelector("#startBtn").classList.add("hidden");
+  document.querySelector("#darkenScreen").classList.add("hidden");
   timer.running = true;
 }
 
@@ -84,13 +88,15 @@ function addPlates() {
 
     plates.push(plate);
   }
+  //remove initial plate
   document.querySelector("#plate").parentElement.removeChild(document.querySelector("#plate"));
 }
 
+//translate mouse coords to match svg coords
 function cursorPoint(evt) {
-  pt.x = evt.clientX;
-  pt.y = evt.clientY;
-  return pt.matrixTransform(document.querySelector("#svgWrapper svg").getScreenCTM().inverse());
+  svgPoint.x = evt.clientX;
+  svgPoint.y = evt.clientY;
+  return svgPoint.matrixTransform(document.querySelector("#svgWrapper svg").getScreenCTM().inverse());
 }
 
 function grabPlate(event) {
@@ -119,9 +125,6 @@ function checkCollision(rect1, rect2) {
     plateCollisionY < rect2CollisionY + rect2Height &&
     plateCollisionY + plateHeight > rect2CollisionY
   ) {
-    // console.log(plateCollisionX, plateCollisionY, "dx:", dishwasherCollisionX, "dy:", dishwasherCollisionY);
-    // console.log(plateWidth, plateHeight, dishwasherWidth, dishwasherHeight);
-    console.log("collision");
     if (!dishwasher.closed) addPlateToDishwasher(rect1.parentElement);
     else addPlateToSink(rect1.parentElement);
   }
@@ -130,11 +133,13 @@ function checkCollision(rect1, rect2) {
 function addPlateToDishwasher(plate) {
   dishwasher.plates++;
   plate.parentElement.removeChild(plate);
+  points++;
 }
 
 function addPlateToSink(plate) {
   sink.plates++;
   plate.parentElement.removeChild(plate);
+  points++;
 }
 
 function movePlate(event) {
@@ -158,9 +163,6 @@ function gameLoop() {
     timer.running = false;
   }
 
-  //   if (plate.grabbed) plate.collisionNode.addEventListener("mousemove", movePlate);
-  //   else plate.collisionNode.removeEventListener("mousemove", movePlate);
-
   //VIEW
   if (timer.timeout > 0 && timer.running) {
     if (timer.timeout % TIMER_UPDATE_TICK_RATE == 0) {
@@ -179,23 +181,24 @@ function updateDishwasherView() {
     dishwasher.nodeEmpty.classList.remove("hidden");
     dishwasher.nodeClosed.classList.add("hidden");
     dishwasher.nodeFull.classList.add("hidden");
-    // console.log(dishwasher.plates, "empty");
   } else if (dishwasher.plates >= DISHWASHER_EMPTY_PLATES && dishwasher.plates < DISHWASHER_FULL_PLATES) {
     dishwasher.nodeFull.classList.remove("hidden");
     dishwasher.nodeClosed.classList.add("hidden");
     dishwasher.nodeEmpty.classList.add("hidden");
-    // console.log(dishwasher.plates, "full");
   } else if (dishwasher.plates >= DISHWASHER_FULL_PLATES) {
     dishwasher.nodeFull.classList.add("hidden");
     dishwasher.nodeEmpty.classList.add("hidden");
     dishwasher.nodeClosed.classList.remove("hidden");
     dishwasher.closed = true;
-    // console.log(dishwasher.plates, "closed");
   }
 }
 
 function updateTimer() {
-  //timer.node.style.width = timer.timeout / (GAMETIME / 100) + "%";
+  timer.node.style.width = timer.timeout / (GAMETIME / 100) + "%";
 }
 
-function endGame() {}
+function endGame() {
+  document.querySelector("#darkenScreen").classList.remove("hidden");
+  document.querySelector("#endScreen").classList.remove("hidden");
+  document.querySelector("#endScreen p span").textContent = points;
+}

@@ -1,5 +1,13 @@
 window.addEventListener("DOMContentLoaded", initGame);
 
+let MOBILE = false;
+if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+  MOBILE = true;
+}
+if (window.innerWidth < 800){
+  MOBILE = true;
+}
+
 const GAMETIME = 3600; // in ms
 const TIMER_UPDATE_TICK_RATE = 100; // in ms
 
@@ -81,9 +89,16 @@ function addPlates() {
     plate = Object.create(Plate);
     plate.node = document.querySelector(`#plate${i}`);
     plate.node.setAttribute("transform", `translate(0,${-i * 15})`);
+    plate.node.classList.add("hovered");
 
     plate.collisionNode = document.querySelector(`#plate${i} rect`);
-    plate.collisionNode.addEventListener("mousedown", grabPlate);
+    if(!MOBILE) plate.collisionNode.addEventListener("mousedown", grabPlate);
+    else {
+      //FIXME
+      plate.collisionNode.addEventListener("touchstart", grabPlate);
+    }
+
+
     plate.grabbed = false;
 
     plates.push(plate);
@@ -100,11 +115,26 @@ function cursorPoint(evt) {
 }
 
 function grabPlate(event) {
-  event.target.grabbed = !event.target.grabbed;
-  if (event.target.grabbed) {
-    event.target.addEventListener("mousemove", movePlate);
-  } else event.target.removeEventListener("mousemove", movePlate);
-  console.log(event.target.grabbed);
+  if(!MOBILE){
+    event.preventDefault();
+    event.target.grabbed = !event.target.grabbed;
+    if (event.target.grabbed) {
+      event.target.addEventListener("mousemove", movePlate);
+    } else event.target.removeEventListener("mousemove", movePlate);
+    console.log(event.target.grabbed);
+  } else {
+
+    //FIXME
+    event.preventDefault();
+    let touches = event.changedTouches;
+    console.log(touches);
+    event.target.grabbed = !event.target.grabbed;
+    if (event.target.grabbed) {
+      event.target.addEventListener("touchmove", movePlate);
+    } else event.target.removeEventListener("touchmove", movePlate);
+    console.log(event.target.grabbed);
+  }
+
 }
 
 function checkCollision(rect1, rect2) {
@@ -158,7 +188,7 @@ function gameLoop() {
     timer.timeout--;
   }
 
-  if (timer.timeout == 0) {
+  if (timer.timeout == 0 || points == 10) {
     endGame();
     timer.running = false;
   }

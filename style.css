@@ -1,10 +1,10 @@
 body {
   margin: 0;
+  overflow: hidden;
 }
 
 .hovered:hover {
   cursor: pointer;
-  transform: scale(1.01);
   transform-origin: center;
 }
 

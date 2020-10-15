@@ -1,10 +1,10 @@
 window.addEventListener("DOMContentLoaded", initGame);
 
 let MOBILE = false;
-if( /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ) {
+if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
   MOBILE = true;
 }
-if (window.innerWidth < 800){
+if (window.innerWidth < 800) {
   MOBILE = true;
 }
 
@@ -92,12 +92,12 @@ function addPlates() {
     plate.node.classList.add("hovered");
 
     plate.collisionNode = document.querySelector(`#plate${i} rect`);
-    if(!MOBILE) plate.collisionNode.addEventListener("mousedown", grabPlate);
+    if (!MOBILE) plate.collisionNode.addEventListener("mousedown", grabPlate);
     else {
       //FIXME
       plate.collisionNode.addEventListener("touchstart", grabPlate);
+      plate.collisionNode.addEventListener("mousedown", grabPlate);
     }
-
 
     plate.grabbed = false;
 
@@ -115,26 +115,54 @@ function cursorPoint(evt) {
 }
 
 function grabPlate(event) {
-  if(!MOBILE){
-    event.preventDefault();
+  event.preventDefault();
+  if (!MOBILE) {
     event.target.grabbed = !event.target.grabbed;
     if (event.target.grabbed) {
       event.target.addEventListener("mousemove", movePlate);
+      event.target.removeEventListener("mousedown", grabPlate);
+      event.target.addEventListener("mouseup", ungrabPlate);
     } else event.target.removeEventListener("mousemove", movePlate);
     console.log(event.target.grabbed);
   } else {
-
     //FIXME
-    event.preventDefault();
-    let touches = event.changedTouches;
-    console.log(touches);
-    event.target.grabbed = !event.target.grabbed;
+    console.log("Grab");
+    event.target.grabbed = true;
     if (event.target.grabbed) {
-      event.target.addEventListener("touchmove", movePlate);
-    } else event.target.removeEventListener("touchmove", movePlate);
+      event.target.addEventListener("mousemove", movePlate);
+      event.target.removeEventListener("mousedown", grabPlate);
+    } else event.target.removeEventListener("mousemove", movePlate);
     console.log(event.target.grabbed);
   }
+}
 
+function ungrabPlate(event) {
+  console.log("Ungrab");
+  event.target.grabbed = false;
+  event.target.removeEventListener("mousemove", movePlate);
+  event.target.addEventListener("mousedown", grabPlate);
+}
+
+function movePlate(event) {
+  event.preventDefault();
+  if (!MOBILE) {
+    event.target.parentElement.setAttribute(
+      "transform",
+      `translate(${parseInt(cursorPoint(event).x) - INITIAL_PLATE_X},${
+        parseInt(cursorPoint(event).y) - INITIAL_PLATE_Y
+      })`
+    );
+  } else {
+    event.target.parentElement.setAttribute(
+      "transform",
+      `translate(${parseInt(cursorPoint(event).x) - INITIAL_PLATE_X},${
+        parseInt(cursorPoint(event).y) - INITIAL_PLATE_Y
+      })`
+    );
+  }
+
+  if (!dishwasher.closed) checkCollision(event.target, dishwasher.collisionNode);
+  else checkCollision(event.target, sink.collisionNode);
 }
 
 function checkCollision(rect1, rect2) {
@@ -170,16 +198,6 @@ function addPlateToSink(plate) {
   sink.plates++;
   plate.parentElement.removeChild(plate);
   points++;
-}
-
-function movePlate(event) {
-  event.target.parentElement.setAttribute(
-    "transform",
-    `translate(${parseInt(cursorPoint(event).x) - INITIAL_PLATE_X},${parseInt(cursorPoint(event).y) - INITIAL_PLATE_Y})`
-  );
-
-  if (!dishwasher.closed) checkCollision(event.target, dishwasher.collisionNode);
-  else checkCollision(event.target, sink.collisionNode);
 }
 
 function gameLoop() {

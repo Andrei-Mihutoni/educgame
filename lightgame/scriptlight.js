@@ -55,6 +55,7 @@ function startGame() {
   rooms.forEach((room) => (room.isLit = false));
   rooms.forEach((room) => (room.isAdultIn = false));
   adult.node.setAttribute("transform", "translate(-500,-500)");
+  points = 0;
 
   timer.running = true;
 }

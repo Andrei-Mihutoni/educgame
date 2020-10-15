@@ -57,14 +57,29 @@ async function initGame() {
   svgPoint = document.querySelector("#svgWrapper svg").createSVGPoint();
   document.querySelector("#startBtn").addEventListener("click", startGame);
   initDishwasher();
-  addPlates();
   gameLoop();
 }
 
 function startGame() {
   document.querySelector("#startBtn").classList.add("hidden");
   document.querySelector("#darkenScreen").classList.add("hidden");
+  document.querySelector("#endScreen").classList.add("hidden");
+  document.querySelector("#plate").classList.remove("hidden");
+
   timer.running = true;
+  timer.timeout = GAMETIME;
+
+  points = 0;
+
+  plates = [];
+  dishwasher.plates = 0;
+  dishwasher.closed = false;
+  sink.plates = 0;
+
+  console.log(timer.running, timer.timeout);
+  console.log(plates, dishwasher.plates, sink.plates);
+
+  addPlates();
 }
 
 function initDishwasher() {
@@ -104,7 +119,7 @@ function addPlates() {
     plates.push(plate);
   }
   //remove initial plate
-  document.querySelector("#plate").parentElement.removeChild(document.querySelector("#plate"));
+  document.querySelector("#plate").classList.add("hidden");
 }
 
 //translate mouse coords to match svg coords

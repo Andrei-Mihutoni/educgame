@@ -54,7 +54,7 @@ button {
     color: white;
     font-size: 10vw;
     position: absolute;
-    top: 20vh;
+    top: 10vh;
     left: 32vw;
     grid-column: 2;
 }

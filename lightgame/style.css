@@ -43,18 +43,21 @@ body {
 }
 
 #timerContent {
-  background-color: green;
+  /* border: 1px solid black; */
+  background-color: #82d197;
+  border-radius: 25px;
   width: 100%;
   height: 100%;
 }
 
 #timerBox {
   border: 1px solid black;
-  width: 500px;
-  height: 25px;
+  border-radius: 25px;
+  width: 35vw;
+  height: 3vh;
   position: absolute;
-  top: 10px;
-  left: 10px;
+  top: 5vh; 
+  left: 3vw;
 }
 
 #endScreen {

@@ -48,7 +48,7 @@ async function initGame() {
 function startGame() {
   timer.timeout = GAMETIME;
 
-  document.querySelector("#go_home").classList.add("hidden");
+  document.querySelector("#home_button").classList.add("hidden");
   document.querySelector("#endScreen").classList.add("hidden");
   document.querySelector("#startBtn").classList.add("hidden");
   document.querySelector("#darkenScreen").classList.add("hidden");

@@ -1,6 +1,7 @@
 * {
     box-sizing: border-box;
     margin: 0;
+    font-family: 'Amatic SC', cursive;
 }
 
 body {
@@ -117,7 +118,13 @@ img {
     }
 }
 
+a {
+    text-decoration: none;
+    cursor: pointer;
+}
+
 .title_game {
+    font-size: 1.5em;
     visibility: hidden;
     animation:  0.5s appearing 1s forwards;
 }

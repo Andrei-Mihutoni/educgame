@@ -62,7 +62,8 @@ async function initGame() {
 }
 
 function startGame() {
-  
+
+  document.querySelector("#go_home").classList.add("hidden");
   document.querySelector("#startBtn").classList.add("hidden");
   document.querySelector("#darkenScreen").classList.add("hidden");
   document.querySelector("#endScreen").classList.add("hidden");
@@ -112,6 +113,7 @@ function addPlates() {
     if (!MOBILE) plate.collisionNode.addEventListener("mousedown", grabPlate);
     else {
       //FIXME
+      console.log("do we get there?");
       plate.collisionNode.addEventListener("touchstart", grabPlate);
       plate.collisionNode.addEventListener("mousedown", grabPlate);
     }

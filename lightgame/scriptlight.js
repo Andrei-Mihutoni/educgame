@@ -39,7 +39,6 @@ async function initGame() {
   document.querySelector("#startBtn").addEventListener("click", startGame);
   document.querySelector("#start_again").addEventListener("click", startGame);
 
-
   addRooms();
   initSvg();
   initAdult();
@@ -47,12 +46,15 @@ async function initGame() {
 }
 
 function startGame() {
-
   timer.timeout = GAMETIME;
 
   document.querySelector("#endScreen").classList.add("hidden");
   document.querySelector("#startBtn").classList.add("hidden");
   document.querySelector("#darkenScreen").classList.add("hidden");
+
+  rooms.forEach((room) => (room.isLit = false));
+  rooms.forEach((room) => (room.isAdultIn = false));
+  adult.node.setAttribute("transform", "translate(-500,-500)");
 
   timer.running = true;
 }

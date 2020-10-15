@@ -107,8 +107,7 @@ function gameLoop() {
     // *** process input ***
     function mouseDown() {
         if (mobile == true) {
-            document.querySelector("body").addEventListener("mousemove", moveHands); //on screen smaller than 800px it moves the hands on tap
-            // console.log("Mobile screen size");
+            document.querySelector("body").addEventListener("mousemove", moveHands);
         } else {
             document.querySelector("#hands").addEventListener("mousemove", moveHands);  //on large screen it moves the hands only when hovering on them
             // console.log("Desktop screen size");
@@ -124,6 +123,8 @@ function gameLoop() {
         function cursorPoint(evt) {  // Get mouse cursor point in global SVG space
             point.x = evt.clientX;
             point.y = evt.clientY;
+            console.log(point.x);
+            console.log(point.y);
             // console.log(point.x);
             return point.matrixTransform(svg.getScreenCTM().inverse());
         };
@@ -212,5 +213,3 @@ function endGame() {
     timer.running = false;  //stoping the timer
     gameReset = true;  //reset game
 };
-
-

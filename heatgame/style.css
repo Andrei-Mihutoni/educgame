@@ -30,9 +30,7 @@ section {
 }
 
 button {
-
     position: absolute;
-    top: 50vh;
     left: 30vw;
     height: 15vh;
     width: 35vw;
@@ -62,5 +60,9 @@ button {
 }
 
 #go_home {
-    top: 70vh;
+    top: 50vh;
+}
+
+#start_button {
+    top: 30vh;
 }
